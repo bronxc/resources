@@ -1,0 +1,7 @@
+PE Packer written in x86 assembly (FASM syntax).
+
+- Position Independant Code (delta offset)
+- Loading API with the hash
+- Export Address Table searching
+- Import Address Table loading (ordinal & name)
+- Usage of NtCreateSection/NtMapViewOfSection

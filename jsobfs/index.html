@@ -1,0 +1,238 @@
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>JS Obfs</title>
+</head>
+<body>
+
+<h1>JS Obfs</h1>
+
+<textarea id="textarea_code" style="width: 800px; height: 400px;">
+    var answer = prompt('The password?', ''); 
+    var ok = true; 
+    if (answer.length == 7) { 
+        ok &= (answer[0] == 'D');
+        ok &= (answer[1] == '!'); 
+        ok &= (answer[2] == 'm'); 
+        ok &= (answer[3] == '!'); 
+        ok &= (answer[4] == 'T'); 
+        ok &= (answer[5] == 'r'); 
+        ok &= (answer[6] == '!'); 
+    if (ok) alert('Good job!'); 
+    else alert('Hahaha...no!'); 
+} else alert('Hahaha...no!');
+</textarea><br/>
+<input type="submit" value="Obfuscate it!" onClick="javascript:button_obfuscate_it()" />
+<input type="submit" value="Test my code" onClick="javascript:button_test_code()" />
+
+<script type="text/javascript" src="./lib/parse-js.js"></script>
+<script type="text/javascript" src="./lib/process.js"></script>
+<script>
+
+var tmpNode1, tmpNode2;
+var tmpVar1, tmpVar2;
+var listVarNames = {};
+var funcName, params;
+var dispatchIndexNum = [];
+var dispatchIndex = {};
+
+// Utils
+///////////////////////////////////////////////////////////////////////////
+
+function clone(obj) {
+    return JSON.parse(JSON.stringify(obj));
+}
+
+function randUnique() {
+    return Math.floor(Math.random() * 100) + '' + new Date().getTime();
+}
+
+function genFunctionFromChar(index) {
+    return [
+        'call',
+        [
+            'dot', 
+            ['name', 'String'],
+            'fromCharCode'
+        ],
+        [ ['num', tmpVar1.charCodeAt(index)] ]
+    ];
+}
+
+function shuffle(array) {
+    var currentIndex = array.length;
+    var  temporaryValue, randomIndex;
+
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
+
+        // And swap it with the current element.
+        temporaryValue = array[currentIndex];
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temporaryValue;
+  }
+
+  return array;
+}
+
+// Dispatcher
+///////////////////////////////////////////////////////////////////////////
+
+var dispatchFunctionName = '_'+randUnique();
+
+function addInDispatcher(num) {
+    var dispatchParam = 0;
+
+    do {
+        dispatchParam = randUnique();
+    } while (dispatchIndex[dispatchParam] != undefined); 
+
+    dispatchIndex[dispatchParam] = true;
+    dispatchIndexNum.push([dispatchParam, num]);
+
+    console.log(dispatchParam+':'+num);
+    return dispatchParam;
+}
+
+function generateDispatcher() {
+    dispatchIndexNum = shuffle(dispatchIndexNum);    
+
+    var buffer = 'function '+dispatchFunctionName+'(n){switch(n){';       
+ 
+    for (var i = 0; i < dispatchIndexNum.length; i++) {
+        buffer += 'case '+dispatchIndexNum[i][0]+':return '+dispatchIndexNum[i][1]+';break;';
+    }
+
+    buffer += '}}';
+
+    return buffer;
+}
+
+// AST Obfuscator
+///////////////////////////////////////////////////////////////////////////
+
+function obfsAst(ast) {
+    if (ast[0] == 'num') { // num obfuscation
+        tmpVar1 = ast[1];
+        tmpVar2 = Math.floor(Math.random() * 100);
+
+        console.log(ast[1]+':'+String.fromCharCode(ast[1])+' => '+(tmpVar1-tmpVar2)+' + '+tmpVar2+' = '+String.fromCharCode((tmpVar1-tmpVar2)+tmpVar2));
+
+        ast[0] = 'binary';
+        ast[1] = '+';
+        ast[2] = [
+            'call',
+            ['name', dispatchFunctionName],
+            [ ['num', addInDispatcher(tmpVar1-tmpVar2)] ]
+        ];
+        ast[3] = [
+            'call',
+            ['name', dispatchFunctionName],
+            [ ['num', addInDispatcher(tmpVar2)] ]
+        ];
+        return;
+    } else if (ast[0] == 'string') { // string obfuscation
+        tmpVar1 = ast[1]; // The value of string
+
+        if (tmpVar1.length == 1) {
+            ast[0] = 'call';
+            ast[1] = [
+                        'dot', 
+                        ['name', 'String'],
+                        'fromCharCode'
+                     ];
+            ast[2] = [ ['num', tmpVar1.charCodeAt(0)] ]
+        } else {
+            tmpNode1 = ast;
+            tmpNode2 = [];
+
+            for (var i = 0; i < tmpVar1.length; i++) {
+                tmpNode2[tmpNode2.length] = genFunctionFromChar(i); 
+                
+                if (tmpNode2.length == 2) {
+                    tmpNode1[0] = 'binary';
+                    tmpNode1[1] = '+';
+                    tmpNode1[2] = clone(tmpNode2[0]);
+                    tmpNode1[3] = clone(tmpNode2[1]);
+
+                    if (i != tmpVar1.length-1) { // It's not the last caractere
+                        tmpNode2 = clone(tmpNode1);
+                        
+                        if (i == tmpVar1.length-2) { // The next carac is the last carac 
+                            tmpNode1[2] = clone(tmpNode2);
+                            tmpNode1[3] = genFunctionFromChar(i+1);
+                            break;
+                        } else { 
+                            tmpNode1[2] = clone(tmpNode2);
+                            tmpNode1[3] = [];
+                            tmpNode1 = tmpNode1[3];
+                        
+                            tmpNode2 = [];
+                        }
+                    }
+                }
+            }
+        }
+    } else if (ast[0] == 'var') { 
+        listVarNames[ast[1][0][0]] = '_'+randUnique();
+        ast[1][0][0] = listVarNames[ast[1][0][0]];
+    } else if (ast[0] == 'defun') {
+        listVarNames[ast[1]] = '_'+randUnique();
+        ast[1] = listVarNames[ast[1]];
+    } else if (ast[0] == 'name' && !(ast[2] instanceof Array)) {
+        if (listVarNames[ast[1]] != undefined) {
+            ast[1] = listVarNames[ast[1]];
+        }
+    }
+   
+    // next
+    for (var i = 0; i < ast.length; i++) {
+        if (ast[i] instanceof Array) {
+            obfsAst(ast[i]);
+        }
+    }
+}
+
+// Debug
+///////////////////////////////////////////////////////////////////////////
+
+function showAst(ast, level) {
+    for (var i = 0; i < ast.length; i++) {
+        if (ast[i] instanceof Array) {
+            showAst(ast[i], level+1);
+        } else {
+            document.write(Array(level).join('--')+'|'+ast[i]+'<br/>');
+        }
+    }
+}
+
+// Main
+///////////////////////////////////////////////////////////////////////////
+
+function obfs(orig_code){
+    var ast = parse(orig_code, {'ascii_only':true}); // JS Code -> Initial AST
+    obfsAst(ast);                                    // Initial AST => Obfuscated AST
+    //showAst(ast, 1);
+    
+    return generateDispatcher()+gen_code(ast, {'ascii_only':true}); // Obfuscated AST => JS Code
+};
+
+function button_obfuscate_it() {
+    var code = document.getElementById('textarea_code').value;
+    code = obfs(code);
+    document.getElementById('textarea_code').value = code;
+}
+
+function button_test_code() {
+    eval(document.getElementById('textarea_code').value);
+}
+
+</script>
+</body>
+</html>
+
+
+

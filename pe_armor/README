@@ -1,0 +1,21 @@
+Metamorphic PE packer generated and assembled by a Python code.
+
+
+Usage
+------
+
+C:\PeArmor>python2 pearmor.py
+	Entry point:  0x1ae0
+	New entropy: 5.76
+	.text: 0x200
+	.rdata: 0x1000
+	.data: 0x1200
+	eof: 0x1400
+
+C:\PeArmor>move stub.exe builder/
+C:\PeArmor>cd builder
+
+C:\PeArmor\builder>python2 packer.py
+	last section: 188
+
+out.exe is created!

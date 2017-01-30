@@ -1,0 +1,26 @@
+﻿La génération a démarré 11/08/2013 16:17:30.
+     1>Projet "C:\Users\Xash\Desktop\Rootkit x86 x64\x86\x86\x86.vcxproj" sur le nœud 2 (build cible(s)).
+     1>InitializeBuildStatus:
+         Création de "Release\x86.unsuccessfulbuild", car "AlwaysCreate" a été spécifié.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS- /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TC /analyze- /errorReport:prompt ..\x86im\x86im.c ..\x86im\x86im_fmt.c main.c
+         x86im.c
+         x86im_fmt.c
+         main.c
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Xash\Desktop\Rootkit x86 x64\x86\Release\x86.exe" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Release\x86.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Xash\Desktop\Rootkit x86 x64\x86\Release\x86.pdb" /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE:NO /NXCOMPAT:NO /IMPLIB:"C:\Users\Xash\Desktop\Rootkit x86 x64\x86\Release\x86.lib" /MACHINE:X86 Release\x86im.obj
+         Release\x86im_fmt.obj
+         Release\main.obj
+         Génération de code en cours
+         Fin de la génération du code
+         x86.vcxproj -> C:\Users\Xash\Desktop\Rootkit x86 x64\x86\Release\x86.exe
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"C:\Users\Xash\Desktop\Rootkit x86 x64\x86\Release\x86.exe;#1" /manifest Release\x86.exe.intermediate.manifest
+       FinalizeBuildStatus:
+         Suppression du fichier "Release\x86.unsuccessfulbuild".
+         Mise à jour de l'horodatage "Release\x86.lastbuildstate".
+     1>Génération du projet "C:\Users\Xash\Desktop\Rootkit x86 x64\x86\x86\x86.vcxproj" terminée (build cible(s)).
+
+La génération a réussi.
+
+Temps écoulé 00:00:00.94
